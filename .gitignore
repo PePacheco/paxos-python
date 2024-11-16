@@ -1,0 +1,23 @@
+# Ignorar a pasta logs
+logs/*
+
+# Ignorar arquivos de backup do sistema
+*.bak
+*.tmp
+
+# Ignorar arquivos do Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignorar arquivos de ambiente virtual do Python
+venv/
+env/
+
+# Ignorar arquivos de configuração de IDE
+.vscode/
+.idea/
+
+# Ignorar arquivos específicos do sistema operacional
+.DS_Store
+Thumbs.db

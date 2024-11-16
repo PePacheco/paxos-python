@@ -1,0 +1,15 @@
+# # # # # # # # # # # # # # #
+# CONFIGURATION FILE:       #
+#                           #
+# <FUNCTION> <ID> <IP:PORT> #
+# # # # # # # # # # # # # # #
+
+ACCEPTOR 0 127.0.0.1:5000
+ACCEPTOR 1 127.0.0.1:5001
+ACCEPTOR 2 127.0.0.1:5002
+
+LEADER 0 127.0.0.1:5100
+LEADER 1 127.0.0.1:5101
+
+REPLICA 0 127.0.0.1:5200
+REPLICA 1 127.0.0.1:5201
