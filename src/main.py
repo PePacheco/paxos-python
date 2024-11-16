@@ -3,7 +3,10 @@
 # Imports
 import sys
 sys.dont_write_bytecode = True
-import cPickle as pickle
+try:
+  import cPickle as pickle
+except:
+  import pickle
 import os, time, socket, struct
 from acceptor import Acceptor
 from leader import Leader
