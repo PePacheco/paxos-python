@@ -7,9 +7,6 @@ WORKDIR /app
 # Copy the application code
 COPY . /app
 
-# Install any required packages
-RUN pip install -r requirements.txt
-
 # Expose the necessary port
 EXPOSE 10000
 
