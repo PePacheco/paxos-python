@@ -27,7 +27,7 @@ class Leader(Process):
         if address:
             host, port = address
             commander_id = "commander:{}:{}:{}".format(self.id, self.ballot_number, slot_number)
-            commander = Commander(self.env, commander_id, self.id, self.config.acceptors, self.config.replicas, 
+            commander = Commander(self.env, commander_id, self.id, self.config.acceptors, self.config.replicas,
                                   self.ballot_number, slot_number, command, host, port)
 
     def body(self):
@@ -42,14 +42,14 @@ class Leader(Process):
                         self.create_commander(msg.slot_number, msg.command)
             elif isinstance(msg, AdoptedMessage):
                 if self.ballot_number == msg.ballot_number:
-                  pmax = {}
-                  for pv in msg.accepted:
-                      if pv.slot_number not in pmax or pmax[pv.slot_number] < pv.ballot_number:
-                          pmax[pv.slot_number] = pv.ballot_number
-                          self.proposals[pv.slot_number] = pv.command
-                  for sn in self.proposals:
-                      self.create_commander(sn, self.proposals[sn])
-                  self.active = True
+                    pmax = {}
+                    for pv in msg.accepted:
+                        if pv.slot_number not in pmax or pmax[pv.slot_number] < pv.ballot_number:
+                            pmax[pv.slot_number] = pv.ballot_number
+                            self.proposals[pv.slot_number] = pv.command
+                    for sn in self.proposals:
+                        self.create_commander(sn, self.proposals[sn])
+                    self.active = True
             elif isinstance(msg, PreemptedMessage):
                 if msg.ballot_number > self.ballot_number:
                     self.active = False

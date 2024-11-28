@@ -1,0 +1,52 @@
+version: '3'
+services:
+  replica1:
+    build: .
+    environment:
+      - NODE_TYPE=REPLICA
+      - NODE_ID=1
+      - HOST_IP=replica1
+      - PORT=10000
+    networks:
+      paxos_net:
+        ipv4_address: 172.16.238.10
+
+  replica2:
+    build: .
+    environment:
+      - NODE_TYPE=REPLICA
+      - NODE_ID=2
+      - HOST_IP=replica2
+      - PORT=10000
+    networks:
+      paxos_net:
+        ipv4_address: 172.16.238.11
+
+  acceptor1:
+    build: .
+    environment:
+      - NODE_TYPE=ACCEPTOR
+      - NODE_ID=1
+      - HOST_IP=acceptor1
+      - PORT=10000
+    networks:
+      paxos_net:
+        ipv4_address: 172.16.238.12
+
+  leader1:
+    build: .
+    environment:
+      - NODE_TYPE=LEADER
+      - NODE_ID=1
+      - HOST_IP=leader1
+      - PORT=10000
+    networks:
+      paxos_net:
+        ipv4_address: 172.16.238.13
+
+networks:
+  paxos_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24

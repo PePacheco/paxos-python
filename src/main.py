@@ -4,7 +4,7 @@
 import sys
 sys.dont_write_bytecode = True
 try:
-  import cPickle as pickle
+  import cPickle as pickle # type: ignore
 except:
   import pickle
 import os, time, socket, struct
