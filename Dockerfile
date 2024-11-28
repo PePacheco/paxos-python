@@ -1,20 +1,15 @@
-# Use Python 2.7 image
 FROM python:2.7
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the application code
-COPY . /app
+COPY src/ /app/src
+COPY config/ /app/config
 
-# Expose the necessary port
 EXPOSE 10000
 
-# Set environment variables
-ENV NODE_TYPE=${NODE_TYPE}
-ENV NODE_ID=${NODE_ID}
-ENV HOST_IP=${HOST_IP}
-ENV PORT=${PORT}
+ENV NODE_TYPE=LEADER
+ENV NODE_ID=1
+ENV HOST_IP=127.0.0.1
+ENV PORT=10000
 
-# Run the process
-CMD ["python", "env.py", "config.txt", "${NODE_ID}", "${NODE_TYPE}"]
+CMD ["python2", "./src/main.py"]
