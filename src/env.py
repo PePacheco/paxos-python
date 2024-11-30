@@ -205,8 +205,7 @@ class Env:
 
                 # address = self.available_addresses[0]
                 print "Running input", input, self_ip
-                print "", self.available_addresses
-                self.send_single_message({"message": "Hello, world!"}, self.available_addresses[0])
+                self.send_single_message({"message": input}, self.available_addresses[0]) # WORKING
 
                 # Exit
                 if input == "exit":

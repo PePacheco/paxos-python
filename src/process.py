@@ -27,16 +27,15 @@ class Process(Thread):
                 client_socket, addr = self.server_socket.accept()
                 while True:
                     length_data = self.recv_all(client_socket, 4)
-                    print "length received", length_data
                     if not length_data:
                         break
                     length = struct.unpack('!I', length_data)[0]
                     data = self.recv_all(client_socket, length)
-                    print "data received", data
-                    if not data:
-                        break
+                    # if not data:
+                    #     break
                     try:
                         msg = pickle.loads(data)
+                        print "message received:", msg
                         self.inbox.put(msg)
                     except (EOFError, pickle.UnpicklingError) as e:
                         print "Error decoding message"
