@@ -3,10 +3,7 @@
 # Imports
 import sys
 sys.dont_write_bytecode = True
-try:
-  import cPickle as pickle # type: ignore
-except:
-  import pickle
+import cPickle as pickle
 import os, time, socket, struct
 from acceptor import Acceptor
 from leader import Leader
@@ -37,7 +34,7 @@ class Env:
 
     def get_network_address(self):
         return self.available_addresses.pop(0) if self.available_addresses else None
-
+    
     def generate_ports(self, host, start_port, end_port):
         return [(host, port) for port in range(start_port, end_port + 1)]
 
@@ -90,7 +87,7 @@ class Env:
             host, port = self.get_network_address()
             Leader(self, pid, self.config, host, port)
             self.config.leaders.append(pid)
-
+  
     # Create custom configuration
     def create_custom(self):
         print "Using custom configuration\n\n"
@@ -127,18 +124,18 @@ class Env:
             self._graceexit()
         finally:
             file.close()
-
+    
     # Run environment
     def run(self):
         print "\n"
         while True:
             try:
                 input = raw_input("\nInput: ")
-
+                
                 # Exit
                 if input == "exit":
                     self._graceexit()
-
+                
                 # New client
                 elif input.startswith("newclient"):
                     parts = input.split(" ")
@@ -155,8 +152,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-
-                # New account
+                
+                # New account   
                 elif input.startswith("newaccount"):
                     parts = input.split(" ")
                     if len(parts) != 3 and len(parts) != 2:
@@ -173,8 +170,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-
-                # Add account
+                
+                # Add account    
                 elif input.startswith("addaccount"):
                     parts = input.split(" ")
                     if len(parts) != 3:
@@ -190,8 +187,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-
-                # Balance
+                
+                # Balance   
                 elif input.startswith("balance"):
                     parts = input.split(" ")
                     if len(parts) != 2 and len(parts) != 3:
@@ -208,7 +205,7 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-
+                
                 # Deposit
                 elif input.startswith("deposit"):
                     parts = input.split(" ")
@@ -259,7 +256,7 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-
+                        
                 # Fail
                 elif input.startswith("fail"):
                     parts = input.split(" ")
@@ -308,13 +305,13 @@ class Env:
                         self.sendMessage(r, RequestMessage(pid, cmd))
                         time.sleep(1)
                     self.perf=-1
-
+                
                 # Default
                 else:
                     print "Unknown command"
                     self.perf=-1
                 self.perf+=1
-
+            
             except Exception as e:
                 print e
                 self._graceexit()
@@ -333,13 +330,13 @@ def main():
         print "Usage: env.py"
         print "Usage: env.py <config_file> <id> <function>"
         os._exit(1)
-
+    
     # Reset log files
-    # for f in os.listdir("../logs"):
-    #     path = os.path.join("../logs", f)
-    #     if os.path.isfile(path):
-    #         os.remove(path)
-
+    for f in os.listdir("../logs"):
+        path = os.path.join("../logs", f)
+        if os.path.isfile(path):
+            os.remove(path)
+                     
     # Run environment
     e.run()
 

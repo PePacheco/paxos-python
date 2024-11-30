@@ -1,10 +1,7 @@
 import sys
 sys.dont_write_bytecode = True
 import array, socket, struct
-try:
-  import cPickle as pickle
-except:
-  import pickle
+import cPickle as pickle
 from threading import Thread
 from Queue import Queue
 
@@ -23,7 +20,7 @@ class Process(Thread):
         self.listener_thread.daemon = True
         self.listener_thread.start()
         self.stop = False
-
+    
     def listen_for_messages(self):
         while True:
             try:
@@ -44,7 +41,7 @@ class Process(Thread):
                 client_socket.close()
             except Exception as e:
                 print "Error accepting connection"
-
+    
     def recv_all(self, sock, n):
         data = array.array('b')  # Usando array para bytes
         while len(data) < n:
