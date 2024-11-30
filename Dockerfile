@@ -1,15 +1,11 @@
 FROM python:2.7
 
-WORKDIR /app
+WORKDIR /app/src
 
 COPY src/ /app/src
 COPY config/ /app/config
+COPY logs/ /app/logs
 
 EXPOSE 10000
 
-ENV NODE_TYPE=LEADER
-ENV NODE_ID=1
-ENV HOST_IP=127.0.0.1
-ENV PORT=10000
-
-CMD ["python2", "./src/main.py"]
+CMD ["python2", "./env.py"]

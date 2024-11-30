@@ -11,6 +11,16 @@ from message import RequestMessage
 from replica import Replica
 from utils import *
 
+inputs = [
+    "newclient Pedro 1",
+    "newclient Hector 2",
+    "newaccount 1 1",
+    "addaccount 1 2",
+    "balance 2 1",
+    "deposit 1 100",
+    "balance 2 1",
+]
+
 # Constants
 NACCEPTORS = 5
 NREPLICAS = 3
@@ -23,9 +33,12 @@ class Env:
         self.dist = False
         if dist != 1: self.dist=True
         if self.dist:
-            self.available_addresses =  self.generate_ports('localhost', 10000*int(sys.argv[2])+10000, 10000*int(sys.argv[2])+11111)
+            s = self.generate_ports('localhost', 10000*int(sys.argv[2])+10000, 10000*int(sys.argv[2])+11111)
+            self.available_addresses = s
         else:
-            self.available_addresses =  self.generate_ports('localhost', 10000, 11111)
+            s = self.generate_ports('localhost', 10000, 11111)
+            print "Pedro, ", s
+            self.available_addresses = s
         self.procs = {}
         self.proc_addresses = {}
         self.config = Config([], [], [])
@@ -34,7 +47,7 @@ class Env:
 
     def get_network_address(self):
         return self.available_addresses.pop(0) if self.available_addresses else None
-    
+
     def generate_ports(self, host, start_port, end_port):
         return [(host, port) for port in range(start_port, end_port + 1)]
 
@@ -87,7 +100,7 @@ class Env:
             host, port = self.get_network_address()
             Leader(self, pid, self.config, host, port)
             self.config.leaders.append(pid)
-  
+
     # Create custom configuration
     def create_custom(self):
         print "Using custom configuration\n\n"
@@ -124,18 +137,27 @@ class Env:
             self._graceexit()
         finally:
             file.close()
-    
+
     # Run environment
     def run(self):
         print "\n"
+        count = 0
+        node_id = os.environ.get("NODE_ID")
+        if node_id != "4":
+            return
         while True:
             try:
-                input = raw_input("\nInput: ")
-                
+                # input = raw_input("\nInput: ")
+                input = inputs[count]
+                if count == 6:
+                    count += 1
+                else:
+                    count = 0
+
                 # Exit
                 if input == "exit":
                     self._graceexit()
-                
+
                 # New client
                 elif input.startswith("newclient"):
                     parts = input.split(" ")
@@ -152,8 +174,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-                
-                # New account   
+
+                # New account
                 elif input.startswith("newaccount"):
                     parts = input.split(" ")
                     if len(parts) != 3 and len(parts) != 2:
@@ -170,8 +192,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-                
-                # Add account    
+
+                # Add account
                 elif input.startswith("addaccount"):
                     parts = input.split(" ")
                     if len(parts) != 3:
@@ -187,8 +209,8 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-                
-                # Balance   
+
+                # Balance
                 elif input.startswith("balance"):
                     parts = input.split(" ")
                     if len(parts) != 2 and len(parts) != 3:
@@ -205,7 +227,7 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-                
+
                 # Deposit
                 elif input.startswith("deposit"):
                     parts = input.split(" ")
@@ -256,7 +278,7 @@ class Env:
                             for r in self.config.replicas:
                                 self.sendMessage(r,RequestMessage(pid,cmd))
                         time.sleep(1)
-                        
+
                 # Fail
                 elif input.startswith("fail"):
                     parts = input.split(" ")
@@ -305,13 +327,13 @@ class Env:
                         self.sendMessage(r, RequestMessage(pid, cmd))
                         time.sleep(1)
                     self.perf=-1
-                
+
                 # Default
                 else:
                     print "Unknown command"
                     self.perf=-1
                 self.perf+=1
-            
+
             except Exception as e:
                 print e
                 self._graceexit()
@@ -330,13 +352,13 @@ def main():
         print "Usage: env.py"
         print "Usage: env.py <config_file> <id> <function>"
         os._exit(1)
-    
+
     # Reset log files
     for f in os.listdir("../logs"):
         path = os.path.join("../logs", f)
         if os.path.isfile(path):
             os.remove(path)
-                     
+
     # Run environment
     e.run()
 
