@@ -47,6 +47,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
+MAX_RUNS = 500
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -81,6 +82,18 @@ class Env:
 
     def release_network_address(self, address):
         self.available_addresses.append(address)
+
+    def send_single_message(self, message, address_tuple):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.connect(address_tuple)
+            data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
+            s.sendall(struct.pack('!I', len(data)) + data)
+            print "message sent to", address_tuple
+        except Exception as e:
+            print("Failed to send message:", e)
+        finally:
+            s.close()
 
     def sendMessage(self, dst, msg):
         if dst in self.proc_addresses:
@@ -179,7 +192,9 @@ class Env:
     # Run environment
     def run(self):
         count = 0
-        while True and self_node_type == 'LEADER':
+        count_global = 0
+        while count_global < MAX_RUNS:
+            count_global += 1
             try:
                 # input = raw_input("\nInput: ")
                 input = inputs[count]
@@ -188,7 +203,10 @@ class Env:
                 else:
                     count = 0
 
-                print "Running input", input
+                # address = self.available_addresses[0]
+                print "Running input", input, self_ip
+                print "", self.available_addresses
+                self.send_single_message("test", self.available_addresses[0])
 
                 # Exit
                 if input == "exit":
@@ -397,8 +415,13 @@ def main():
             os.remove(path)
 
     # Run environment
-    e.run()
+    if self_node_type == "LEADER":
+        e.run()
+    else:
+        while True:
+            time.sleep(20)
+            print "Sleeping ", self_ip
 
 # Main call
-# if __name__=='__main__':
-main()
+if __name__=='__main__':
+    main()
