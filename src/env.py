@@ -118,10 +118,10 @@ class Env:
             self.config.replicas.append(pid)
         if self_node_type == "ACCEPTOR":
             Acceptor(self, pid, self.config, self_ip, self_port)
-            self.config.replicas.append(pid)
+            self.config.acceptors.append(pid)
         if self_node_type == "LEADER":
             Leader(self, pid, self.config, self_ip, self_port)
-            self.config.replicas.append(pid)
+            self.config.leaders.append(pid)
         # for i in range(NREPLICAS):
         #     pid = "replica %d" % i
         #     host, port = self.get_network_address()
