@@ -21,6 +21,18 @@ inputs = [
     "balance 2 1",
 ]
 
+host_ips = [
+    'acceptor0',  # 172.16.238.10
+    'acceptor1',  # 172.16.238.11
+    'acceptor2',  # 172.16.238.12
+    'leader0',    # 172.16.238.13
+    'leader1',    # 172.16.238.14
+    'replica0',   # 172.16.238.15
+    'replica1',   # 172.16.238.16
+]
+
+self_ip = os.environ.get("HOST_IP")
+
 # Constants
 NACCEPTORS = 5
 NREPLICAS = 3
@@ -32,13 +44,12 @@ class Env:
     def __init__(self, dist):
         self.dist = False
         if dist != 1: self.dist=True
-        if self.dist:
-            s = self.generate_ports('localhost', 10000*int(sys.argv[2])+10000, 10000*int(sys.argv[2])+11111)
-            self.available_addresses = s
-        else:
-            s = self.generate_ports('localhost', 10000, 11111)
-            print "Pedro, ", s
-            self.available_addresses = s
+        # if self.dist:
+        #     s = self.generate_ports('localhost', 10000*int(sys.argv[2])+10000, 10000*int(sys.argv[2])+11111)
+        #     self.available_addresses = s
+        # else:
+        #     s = self.generate_ports('localhost', 10000, 11111)
+        #     self.available_addresses = s
         self.procs = {}
         self.proc_addresses = {}
         self.config = Config([], [], [])
