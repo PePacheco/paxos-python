@@ -179,19 +179,16 @@ class Env:
     # Run environment
     def run(self):
         count = 0
-        print "Pedroca ", self_node_type
-        if self_node_type != "LEADER":
-            return
-        while True:
+        while True and self_node_type == 'LEADER':
             try:
                 # input = raw_input("\nInput: ")
                 input = inputs[count]
-
-                print "Running input", input
-                if count == 6:
+                if count < 6:
                     count += 1
                 else:
                     count = 0
+
+                print "Running input", input
 
                 # Exit
                 if input == "exit":
@@ -403,5 +400,5 @@ def main():
     e.run()
 
 # Main call
-if __name__=='__main__':
-    main()
+# if __name__=='__main__':
+main()
