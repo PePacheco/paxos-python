@@ -21,27 +21,29 @@ inputs = [
     "balance 2 1",
 ]
 
-# hosts_and_ports = [
-#     ("acceptor0", 5000),  # 172.16.238.10
-#     ("acceptor1", 5001),  #  172.16.238.11
-#     ("acceptor2", 5002),  #  172.16.238.12
-#     ("leader0", 5100),  #  172.16.238.13
-#     ("leader1", 5101),  #  172.16.238.14
-#     ("replica0", 5200),  #  172.16.238.15
-#     ("replica1", 5201),  #  172.16.238.16
-# ]
-
 hosts_and_ports = [
-    ("172.16.238.10", 5000),  # acceptor0
-    ("172.16.238.11", 5001),  # acceptor1
-    ("172.16.238.12", 5002),  # acceptor2
-    ("172.16.238.13", 5100),  # leader0
-    ("172.16.238.14", 5101),  # leader1
-    ("172.16.238.15", 5200),  # replica0
-    ("172.16.238.16", 5201),  # replica1
+    ("acceptor0", 5000),  # 172.16.238.10
+    ("acceptor1", 5001),  # 172.16.238.11
+    ("acceptor2", 5002),  # 172.16.238.12
+    ("leader0", 5100),  # 172.16.238.13
+    ("leader1", 5101),  # 172.16.238.14
+    ("replica0", 5200),  # 172.16.238.15
+    ("replica1", 5201),  # 172.16.238.16
 ]
 
+# hosts_and_ports = [
+#     ("172.16.238.10", 5000),  # acceptor0
+#     ("172.16.238.11", 5001),  # acceptor1
+#     ("172.16.238.12", 5002),  # acceptor2
+#     ("172.16.238.13", 5100),  # leader0
+#     ("172.16.238.14", 5101),  # leader1
+#     ("172.16.238.15", 5200),  # replica0
+#     ("172.16.238.16", 5201),  # replica1
+# ]
+
 self_port = os.environ.get("PORT")
+self_ip = os.environ.get("HOST_IP")
+self_node_type = os.environ.get("NODE_TYPE")
 
 # Constants
 NACCEPTORS = 2
@@ -53,7 +55,6 @@ NREQUESTS = 10
 class Env:
     def __init__(self, dist):
         self.dist = False
-        self_ip = os.environ.get("HOST_IP")
         if dist != 1: self.dist=True
         self.available_addresses = []
         for host, port in hosts_and_ports:
@@ -96,7 +97,7 @@ class Env:
     def addProc(self, proc):
         self.procs[proc.id] = proc
         self.proc_addresses[proc.id] = (proc.host, proc.port)
-        proc.start()
+        # proc.start()
 
     def removeProc(self, pid):
         if pid in self.procs:
@@ -111,21 +112,31 @@ class Env:
     # Create default configuration
     def create_default(self):
         print "Using default configuration\n\n"
-        for i in range(NREPLICAS):
-            pid = "replica %d" % i
-            host, port = self.get_network_address()
-            Replica(self, pid, self.config, host, port)
+        pid = self_ip
+        if self_node_type == "REPLICA":
+            Replica(self, pid, self.config, self_ip, self_port)
             self.config.replicas.append(pid)
-        for i in range(NACCEPTORS):
-            pid = "acceptor %d.%d" % (self.c,i)
-            host, port = self.get_network_address()
-            Acceptor(self, pid, host, port)
-            self.config.acceptors.append(pid)
-        for i in range(NLEADERS):
-            pid = "leader %d.%d" % (self.c,i)
-            host, port = self.get_network_address()
-            Leader(self, pid, self.config, host, port)
-            self.config.leaders.append(pid)
+        if self_node_type == "ACCEPTOR":
+            Acceptor(self, pid, self.config, self_ip, self_port)
+            self.config.replicas.append(pid)
+        if self_node_type == "LEADER":
+            Leader(self, pid, self.config, self_ip, self_port)
+            self.config.replicas.append(pid)
+        # for i in range(NREPLICAS):
+        #     pid = "replica %d" % i
+        #     host, port = self.get_network_address()
+        #     Replica(self, pid, self.config, host, port)
+        #     self.config.replicas.append(pid)
+        # for i in range(NACCEPTORS):
+        #     pid = "acceptor %d.%d" % (self.c,i)
+        #     host, port = self.get_network_address()
+        #     Acceptor(self, pid, host, port)
+        #     self.config.acceptors.append(pid)
+        # for i in range(NLEADERS):
+        #     pid = "leader %d.%d" % (self.c,i)
+        #     host, port = self.get_network_address()
+        #     Leader(self, pid, self.config, host, port)
+        #     self.config.leaders.append(pid)
 
     # Create custom configuration
     def create_custom(self):

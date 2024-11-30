@@ -15,12 +15,12 @@ class Process(Thread):
         self.inbox = Queue()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
-        self.server_socket.listen(5)
+        self.server_socket.listen()
         self.listener_thread = Thread(target=self.listen_for_messages)
         self.listener_thread.daemon = True
         self.listener_thread.start()
         self.stop = False
-    
+
     def listen_for_messages(self):
         while True:
             try:
@@ -41,7 +41,7 @@ class Process(Thread):
                 client_socket.close()
             except Exception as e:
                 print "Error accepting connection"
-    
+
     def recv_all(self, sock, n):
         data = array.array('b')  # Usando array para bytes
         while len(data) < n:
