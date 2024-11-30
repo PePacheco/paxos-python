@@ -41,9 +41,10 @@ hosts_and_ports = [
 #     ("172.16.238.16", 5201),  # replica1
 # ]
 
-self_port = os.environ.get("PORT")
+self_port = int(os.environ.get("PORT"))
 self_ip = os.environ.get("HOST_IP")
 self_node_type = os.environ.get("NODE_TYPE")
+self_node_id = os.environ.get("NODE_ID")
 
 # Constants
 NACCEPTORS = 2
@@ -117,7 +118,7 @@ class Env:
             Replica(self, pid, self.config, self_ip, self_port)
             self.config.replicas.append(pid)
         if self_node_type == "ACCEPTOR":
-            Acceptor(self, pid, self.config, self_ip, self_port)
+            Acceptor(self, pid, self_ip, self_port)
             self.config.acceptors.append(pid)
         if self_node_type == "LEADER":
             Leader(self, pid, self.config, self_ip, self_port)
@@ -177,15 +178,16 @@ class Env:
 
     # Run environment
     def run(self):
-        print "\n"
         count = 0
-        node_id = os.environ.get("NODE_ID")
-        if node_id != "4":
+        print "Pedroca ", self_node_type
+        if self_node_type != "LEADER":
             return
         while True:
             try:
                 # input = raw_input("\nInput: ")
                 input = inputs[count]
+
+                print "Running input", input
                 if count == 6:
                     count += 1
                 else:
@@ -378,6 +380,7 @@ class Env:
 # Main
 def main():
   # Create environment and check arguments
+    print "Ran for", self_node_type
     e = Env(len(os.sys.argv))
     if len(os.sys.argv) == 1:
         e.create_default()
