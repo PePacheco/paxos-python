@@ -21,29 +21,44 @@ inputs = [
     "balance 2 1",
 ]
 
-host_ips = [
-    'acceptor0',  # 172.16.238.10
-    'acceptor1',  # 172.16.238.11
-    'acceptor2',  # 172.16.238.12
-    'leader0',    # 172.16.238.13
-    'leader1',    # 172.16.238.14
-    'replica0',   # 172.16.238.15
-    'replica1',   # 172.16.238.16
+# hosts_and_ports = [
+#     ("acceptor0", 5000),  # 172.16.238.10
+#     ("acceptor1", 5001),  #  172.16.238.11
+#     ("acceptor2", 5002),  #  172.16.238.12
+#     ("leader0", 5100),  #  172.16.238.13
+#     ("leader1", 5101),  #  172.16.238.14
+#     ("replica0", 5200),  #  172.16.238.15
+#     ("replica1", 5201),  #  172.16.238.16
+# ]
+
+hosts_and_ports = [
+    ("172.16.238.10", 5000),  # acceptor0
+    ("172.16.238.11", 5001),  # acceptor1
+    ("172.16.238.12", 5002),  # acceptor2
+    ("172.16.238.13", 5100),  # leader0
+    ("172.16.238.14", 5101),  # leader1
+    ("172.16.238.15", 5200),  # replica0
+    ("172.16.238.16", 5201),  # replica1
 ]
 
-self_ip = os.environ.get("HOST_IP")
+self_port = os.environ.get("PORT")
 
 # Constants
-NACCEPTORS = 5
-NREPLICAS = 3
-NLEADERS = 2
+NACCEPTORS = 2
+NREPLICAS = 2
+NLEADERS = 1
 NREQUESTS = 10
 
 # Environment class
 class Env:
     def __init__(self, dist):
         self.dist = False
+        self_ip = os.environ.get("HOST_IP")
         if dist != 1: self.dist=True
+        self.available_addresses = []
+        for host, port in hosts_and_ports:
+            if host != self_ip:
+                self.available_addresses.append((host, port))
         # if self.dist:
         #     s = self.generate_ports('localhost', 10000*int(sys.argv[2])+10000, 10000*int(sys.argv[2])+11111)
         #     self.available_addresses = s
