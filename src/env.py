@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 1
+MAX_RUNS = 6
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -85,7 +85,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            print "sending message", message.__class__, "to", address_tuple
+            print "<- Message sent", message.__class__, "to", address_tuple, "\n"
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
@@ -144,7 +144,6 @@ class Env:
             self.config.replicas.append(r)
         if self_node_type == "ACCEPTOR":
             a = Acceptor(self, pid, self_ip, self_port)
-            print "JONAS", a
             self.config.acceptors.append(a)
         if self_node_type == "LEADER":
             l = Leader(self, pid, self.config, self_ip, self_port)
@@ -433,9 +432,9 @@ def main():
     # Run environment
     if self_node_type == "LEADER":
         e.run()
-    else:
-        while True:
-            pass
+    while True:
+        time.sleep(1000)
+        print "sleeping"
 
 # Main call
 if __name__=='__main__':

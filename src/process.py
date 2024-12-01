@@ -41,7 +41,7 @@ class Process(Thread):
                     #     break
                     try:
                         msg = pickle.loads(data)
-                        print "message received:", msg.__class__, self_ip, self_node_type
+                        print "-> Message received:", msg.__class__, self_ip
                         if self_node_type == 'ACCEPTOR':
                             this = self.env.config.acceptors[-1]
                             this.handler(msg)

@@ -91,4 +91,4 @@ class Leader(Process):
                 self.ballot_number = BallotNumber(message.ballot_number.round+1, self.id)
                 self.create_scout()
         else:
-            print "Leader: unknown msg type", message, message.__class__
+            print ""
