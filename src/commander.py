@@ -30,7 +30,7 @@ class Commander(Process):
         message = P2aMessage((self_ip, self_port), self.ballot_number, self.slot_number, self.command)
         acceptors = self.env.broadcast_message_to_acceptors(message)
         for a in acceptors:
-            waitfor.add(a)
+            waitfor.add(a[0])
         # for a in self.acceptors:
         #     self.sendMessage(a, P2aMessage(self.id, self.ballot_number, self.slot_number, self.command))
         #     waitfor.add(a)
