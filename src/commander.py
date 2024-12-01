@@ -1,7 +1,13 @@
 import sys
+import os
 sys.dont_write_bytecode = True
 from message import P2aMessage,P2bMessage,PreemptedMessage,DecisionMessage
 from process import Process
+
+self_port = int(os.environ.get("PORT"))
+self_ip = os.environ.get("HOST_IP")
+self_node_type = os.environ.get("NODE_TYPE")
+self_node_id = os.environ.get("NODE_ID")
 
 class Commander(Process):
     def __init__(self, env, id, leader, acceptors, replicas, ballot_number, slot_number, command, host, port):
@@ -21,9 +27,13 @@ class Commander(Process):
 
     def body(self):
         waitfor = set()
-        for a in self.acceptors:
-            self.sendMessage(a, P2aMessage(self.id, self.ballot_number, self.slot_number, self.command))
+        message = P2aMessage((self_ip, self_port), self.ballot_number, self.slot_number, self.command)
+        acceptors = self.env.broadcast_message_to_acceptors(message)
+        for a in acceptors:
             waitfor.add(a)
+        # for a in self.acceptors:
+        #     self.sendMessage(a, P2aMessage(self.id, self.ballot_number, self.slot_number, self.command))
+        #     waitfor.add(a)
 
         while True:
             msg = self.getNextMessage()
