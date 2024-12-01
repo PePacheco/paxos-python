@@ -13,8 +13,8 @@ class Scout(Process):
 
     def body(self):
         waitfor = set()
+        self.acceptors = self.env.broadcast_message_to_acceptors(P1aMessage(self.id, self.ballot_number))
         for a in self.acceptors:
-            self.sendMessage(a, P1aMessage(self.id, self.ballot_number))
             waitfor.add(a)
 
         pvalues = set()

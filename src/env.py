@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 30
+MAX_RUNS = 500
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -71,6 +71,7 @@ class Env:
         self.c = 0
         self.perf = 0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.hosts_and_ports_map = hosts_and_ports_map
 
     def get_network_address(self):
         return self.available_addresses.pop(0) if self.available_addresses else None
@@ -84,7 +85,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            # print "sending message", type(message), "to", address_tuple
+            print "sending message", message, "to", address_tuple
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
@@ -96,6 +97,7 @@ class Env:
     def broadcast_message_to_acceptors(self, message):
         for acceptor in hosts_and_ports_map['acceptor']:
             self.send_single_message(message, acceptor)
+        return hosts_and_ports_map['acceptor']
 
     def broadcast_message_to_replicas(self, message):
         for replicas in hosts_and_ports_map['replica']:
@@ -163,41 +165,41 @@ class Env:
         #     self.config.leaders.append(pid)
 
     # Create custom configuration
-    def create_custom(self):
-        print "Using custom configuration\n\n"
-        try:
-            file = open("..\config\\"+sys.argv[1], 'r')
-            for line in file:
-                parts = line.split(" ")
-                if line.startswith("REPLICA"):
-                    pid = "replica %d" % int(os.sys.argv[2])
-                    self.config.replicas.append(pid)
-                    host, port = parts[2].split(":")
-                    self.proc_addresses[pid] = (host, int(port))
-                    if os.sys.argv[3] == "REPLICA" and parts[1] == os.sys.argv[2]:
-                        self.proc_addresses.pop(pid)
-                        Replica(self, pid, self.config, host, int(port))
-                elif line.startswith("ACCEPTOR"):
-                    pid = "acceptor %d.%d" % (self.c,int(os.sys.argv[2]))
-                    self.config.acceptors.append(pid)
-                    host, port = parts[2].split(":")
-                    self.proc_addresses[pid] = (host, int(port))
-                    if os.sys.argv[3] == "ACCEPTOR" and parts[1] == os.sys.argv[2]:
-                        self.proc_addresses.pop(pid)
-                        Acceptor(self, pid, host, int(port))
-                elif line.startswith("LEADER"):
-                    pid = "leader %d.%d" % (self.c,int(os.sys.argv[2]))
-                    self.config.leaders.append(pid)
-                    host, port = parts[2].split(":")
-                    self.proc_addresses[pid] = (host, int(port))
-                    if os.sys.argv[3] == "LEADER" and parts[1] == os.sys.argv[2]:
-                        self.proc_addresses.pop(pid)
-                        Leader(self, pid, self.config, host, int(port))
-        except Exception as e:
-            print e
-            self._graceexit()
-        finally:
-            file.close()
+    # def create_custom(self):
+    #     print "Using custom configuration\n\n"
+    #     try:
+    #         file = open("..\config\\"+sys.argv[1], 'r')
+    #         for line in file:
+    #             parts = line.split(" ")
+    #             if line.startswith("REPLICA"):
+    #                 pid = "replica %d" % int(os.sys.argv[2])
+    #                 self.config.replicas.append(pid)
+    #                 host, port = parts[2].split(":")
+    #                 self.proc_addresses[pid] = (host, int(port))
+    #                 if os.sys.argv[3] == "REPLICA" and parts[1] == os.sys.argv[2]:
+    #                     self.proc_addresses.pop(pid)
+    #                     Replica(self, pid, self.config, host, int(port))
+    #             elif line.startswith("ACCEPTOR"):
+    #                 pid = "acceptor %d.%d" % (self.c,int(os.sys.argv[2]))
+    #                 self.config.acceptors.append(pid)
+    #                 host, port = parts[2].split(":")
+    #                 self.proc_addresses[pid] = (host, int(port))
+    #                 if os.sys.argv[3] == "ACCEPTOR" and parts[1] == os.sys.argv[2]:
+    #                     self.proc_addresses.pop(pid)
+    #                     Acceptor(self, pid, host, int(port))
+    #             elif line.startswith("LEADER"):
+    #                 pid = "leader %d.%d" % (self.c,int(os.sys.argv[2]))
+    #                 self.config.leaders.append(pid)
+    #                 host, port = parts[2].split(":")
+    #                 self.proc_addresses[pid] = (host, int(port))
+    #                 if os.sys.argv[3] == "LEADER" and parts[1] == os.sys.argv[2]:
+    #                     self.proc_addresses.pop(pid)
+    #                     Leader(self, pid, self.config, host, int(port))
+    #     except Exception as e:
+    #         print e
+    #         self._graceexit()
+    #     finally:
+    #         file.close()
 
     # Run environment
     def run(self):
@@ -403,12 +405,12 @@ class Env:
             except Exception as e:
                 print e
                 self._graceexit()
-        # time.sleep(1000)
+        time.sleep(5000)
 
 # Main
 def main():
   # Create environment and check arguments
-    # print "Ran for", self_node_type
+    print "Ran for", self_node_type
     e = Env(len(os.sys.argv))
     if len(os.sys.argv) == 1:
         e.create_default()

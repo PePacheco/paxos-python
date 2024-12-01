@@ -51,7 +51,7 @@ class Process(Thread):
                         if self_node_type == 'REPLICA':
                             this = self.env.config.replicas[-1]
                             this.handler(msg)
-                        # self.inbox.put(msg)
+                        self.inbox.put(msg)
                     except (EOFError, pickle.UnpicklingError) as e:
                         print "Error decoding message"
                 client_socket.close()
