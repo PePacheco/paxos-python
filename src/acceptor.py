@@ -1,6 +1,6 @@
 import sys
 sys.dont_write_bytecode = True
-from utils import PValue
+from utils import PValue, BallotNumber
 from process import Process
 from message import P1aMessage,P1bMessage,P2aMessage,P2bMessage,RequestMessage
 

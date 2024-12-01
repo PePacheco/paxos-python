@@ -52,7 +52,7 @@ class Commander(Process):
                     print "waitfor", waitfor
                     if len(waitfor) < float(len(self.acceptors))/2:
                         message = DecisionMessage(self.id, self.slot_number, self.command)
-                        self.env.broadcast_message_to_leaders(message)
+                        self.env.broadcast_message_to_replicas(message)
                         # for r in self.replicas:
                         #     self.sendMessage(r, DecisionMessage(self.id, self.slot_number, self.command))
                         return
