@@ -12,8 +12,9 @@ from replica import Replica
 from utils import *
 
 inputs = [
-    "newclient Pedro 1",
-    "newclient Hector 2",
+    "newclient A 1",
+    "newclient B 2",
+    "newclient C 3",
     "newaccount 1 1",
     "addaccount 1 2",
     "balance 2 1",
