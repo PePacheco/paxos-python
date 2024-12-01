@@ -49,6 +49,7 @@ class Process(Thread):
                             this = self.env.config.leaders[-1]
                         if self_node_type == 'REPLICA':
                             this = self.env.config.replicas[-1]
+                            print "", type(this), this.handler
                             this.handler(msg)
                         self.inbox.put(msg)
                     except (EOFError, pickle.UnpicklingError) as e:
