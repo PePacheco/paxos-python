@@ -108,5 +108,5 @@ class Replica(Process):
                     del self.proposals[self.slot_out]
                 self.perform(self.decisions[self.slot_out])
         else:
-            print "Replica: unknown msg type"
+            print "Replica: unknown msg type", message, message.__class__
         self.propose()
