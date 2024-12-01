@@ -45,6 +45,8 @@ class Commander(Process):
         while True:
             msg = self.getNextMessage()
             if isinstance(msg, P2bMessage):
+                print "msg.ballot_number", msg.ballot_number
+                print "self.ballot_number", self.ballot_number
                 if self.ballot_number == msg.ballot_number and msg.src in waitfor:
                     waitfor.remove(msg.src)
                     print "waitfor", waitfor

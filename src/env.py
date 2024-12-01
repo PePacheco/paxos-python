@@ -85,7 +85,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            print "sending message", message.__class__, "to", address_tuple
+            # print "sending message", message.__class__, "to", address_tuple
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
