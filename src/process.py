@@ -46,6 +46,7 @@ class Process(Thread):
                             this = self.env.config.acceptors[-1]
                         if self_node_type == 'LEADER':
                             this = self.env.config.leaders[-1]
+                            print "leader found", this
                         if self_node_type == 'REPLICA':
                             this = self.env.config.replicas[-1]
                             print "replica found", this

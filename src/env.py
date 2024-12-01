@@ -100,6 +100,10 @@ class Env:
         finally:
             s.close()
 
+    def broadcast_message_to_acceptors(self, message):
+        for acceptor in hosts_and_ports_map['acceptor']:
+            self.send_single_message(message, acceptor)
+
     def sendMessage(self, dst, msg):
         if dst in self.proc_addresses:
             host, port = self.proc_addresses[dst]
@@ -213,7 +217,7 @@ class Env:
                 pid = "client %d.%d" % (self.c,self.perf)
                 cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
                 message = RequestMessage(pid,cmd)
-                self.send_single_message({"message": message}, self.available_addresses[0]) # WORKING
+                self.broadcast_message_to_acceptors(message) # WORKING
 
                 # Exit
                 if input == "exit":
