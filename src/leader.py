@@ -14,23 +14,22 @@ class Leader(Process):
         self.proposals = {}
         self.config = config
         self.env.addProc(self)
-        
-        self.scout_number=0
+
+        self.scout_number=1
         self.create_scout()
 
 
     def create_scout(self):
-        address = (self.host, 5000+ self.scout_number)
-        print "address: ", address 
+        address = (self.host, 5300+self.scout_number)
+        print "address: ", address
         if address:
             host, port = address
             scout_id = "scout:{}:{}".format(self.id, self.ballot_number)
             scout = Scout(self.env, scout_id, self.id, self.config.acceptors, self.ballot_number, host, port)
-            print "created scout"
             scout.start()
-            
+
         self.scout_number+=1
-            
+
     def create_commander(self, slot_number, command):
         return
         address = self.env.get_network_address()
