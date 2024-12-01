@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 500
+MAX_RUNS = 30
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -84,7 +84,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            print "sending message", message, "to", address_tuple
+            # print "sending message", type(message), "to", address_tuple
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
@@ -403,12 +403,12 @@ class Env:
             except Exception as e:
                 print e
                 self._graceexit()
-        time.sleep(5000)
+        # time.sleep(1000)
 
 # Main
 def main():
   # Create environment and check arguments
-    print "Ran for", self_node_type
+    # print "Ran for", self_node_type
     e = Env(len(os.sys.argv))
     if len(os.sys.argv) == 1:
         e.create_default()

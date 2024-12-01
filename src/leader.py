@@ -15,7 +15,10 @@ class Leader(Process):
         self.config = config
         self.env.addProc(self)
 
+        self.create_scout()
+
     def create_scout(self):
+        return
         address = self.env.get_network_address()
         if address:
             host, port = address
@@ -23,11 +26,12 @@ class Leader(Process):
             scout = Scout(self.env, scout_id, self.id, self.config.acceptors, self.ballot_number, host, port)
 
     def create_commander(self, slot_number, command):
+        return
         address = self.env.get_network_address()
         if address:
             host, port = address
             commander_id = "commander:{}:{}:{}".format(self.id, self.ballot_number, slot_number)
-            commander = Commander(self.env, commander_id, self.id, self.config.acceptors, self.config.replicas, 
+            commander = Commander(self.env, commander_id, self.id, self.config.acceptors, self.config.replicas,
                                   self.ballot_number, slot_number, command, host, port)
 
     def body(self):
@@ -57,3 +61,27 @@ class Leader(Process):
                     self.create_scout()
             else:
                 print "Leader: unknown msg type"
+
+    def handler(self, message):
+        if isinstance(message, ProposeMessage):
+                if message.slot_number not in self.proposals:
+                    self.proposals[message.slot_number] = message.command
+                    if self.active:
+                        self.create_commander(message.slot_number, message.command)
+        elif isinstance(message, AdoptedMessage):
+            if self.ballot_number == message.ballot_number:
+                pmax = {}
+                for pv in message.accepted:
+                    if pv.slot_number not in pmax or pmax[pv.slot_number] < pv.ballot_number:
+                        pmax[pv.slot_number] = pv.ballot_number
+                        self.proposals[pv.slot_number] = pv.command
+                for sn in self.proposals:
+                    self.create_commander(sn, self.proposals[sn])
+                self.active = True
+        elif isinstance(message, PreemptedMessage):
+            if message.ballot_number > self.ballot_number:
+                self.active = False
+                self.ballot_number = BallotNumber(message.ballot_number.round+1, self.id)
+                self.create_scout()
+        else:
+            print "Leader: unknown msg type"

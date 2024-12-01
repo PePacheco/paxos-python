@@ -33,7 +33,6 @@ class Replica(Process):
                 cmd = self.requests.pop(0)
                 self.proposals[self.slot_in] = cmd
                 message = ProposeMessage(self.id,self.slot_in,cmd)
-                print "sending message from", self_ip, message
                 self.env.broadcast_message_to_leaders(message)
                 # for ldr in self.config.leaders:
                 #     self.sendMessage(ldr, ProposeMessage(self.id,self.slot_in,cmd))
@@ -97,7 +96,6 @@ class Replica(Process):
                 self.propose()
 
     def handler(self, message):
-        print "isinstance of RequestMessage", isinstance(message, RequestMessage)
         if isinstance(message, RequestMessage):
             self.requests.append(message.command)
         elif isinstance(message, DecisionMessage):
