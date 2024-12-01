@@ -27,7 +27,7 @@ class Commander(Process):
 
     def body(self):
         waitfor = set()
-        message = P2aMessage((self_ip, self_port), self.ballot_number, self.slot_number, self.command)
+        message = P2aMessage((self.host, self.port), self.ballot_number, self.slot_number, self.command)
         acceptors = self.env.broadcast_message_to_acceptors(message)
         for a in acceptors:
             waitfor.add(a[0])
