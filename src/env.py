@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 6
+MAX_RUNS = 1
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -85,7 +85,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            # print "sending message", message.__class__, "to", address_tuple
+            print "sending message", message.__class__, "to", address_tuple
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
