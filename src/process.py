@@ -1,9 +1,15 @@
 import sys
+import os
 sys.dont_write_bytecode = True
 import array, socket, struct
 import cPickle as pickle
 from threading import Thread
 from Queue import Queue
+
+self_port = int(os.environ.get("PORT"))
+self_ip = os.environ.get("HOST_IP")
+self_node_type = os.environ.get("NODE_TYPE")
+self_node_id = os.environ.get("NODE_ID")
 
 class Process(Thread):
     def __init__(self, env, id, host, port):
@@ -35,7 +41,14 @@ class Process(Thread):
                     #     break
                     try:
                         msg = pickle.loads(data)
-                        print "message received:", msg
+                        print "message received:", msg, self_ip
+                        if self_node_type == 'ACCEPTOR':
+                            this = self.env.config.acceptors[-1]
+                        if self_node_type == 'LEADER':
+                            this = self.env.config.leaders[-1]
+                        if self_node_type == 'REPLICA':
+                            this = self.env.config.replicas[-1]
+                            print "replica found", this
                         self.inbox.put(msg)
                     except (EOFError, pickle.UnpicklingError) as e:
                         print "Error decoding message"

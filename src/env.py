@@ -21,7 +21,7 @@ inputs = [
     "balance 2 1",
 ]
 
-hosts_and_ports = [
+hosts_and_ports_array = [
     ("acceptor0", 5000),  # 172.16.238.10
     ("acceptor1", 5001),  # 172.16.238.11
     ("acceptor2", 5002),  # 172.16.238.12
@@ -30,6 +30,12 @@ hosts_and_ports = [
     ("replica0", 5200),  # 172.16.238.15
     ("replica1", 5201),  # 172.16.238.16
 ]
+
+hosts_and_ports_map = {
+    "acceptor": [("acceptor0", 5000), ("acceptor1", 5001), ("acceptor2", 5002)],
+    "leader": [("leader0", 5100), ("leader1", 5101)],
+    "replica": [("replica0", 5200), ("replica1", 5201)],
+}
 
 # hosts_and_ports = [
 #     ("172.16.238.10", 5000),  # acceptor0
@@ -59,7 +65,7 @@ class Env:
         self.dist = False
         if dist != 1: self.dist=True
         self.available_addresses = []
-        for host, port in hosts_and_ports:
+        for host, port in hosts_and_ports_array:
             if host != self_ip:
                 self.available_addresses.append((host, port))
         # if self.dist:
@@ -89,7 +95,6 @@ class Env:
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
-            print "message sent to", address_tuple
         except Exception as e:
             print("Failed to send message:", e)
         finally:
@@ -205,7 +210,10 @@ class Env:
 
                 # address = self.available_addresses[0]
                 print "Running input", input, self_ip
-                self.send_single_message({"message": input}, self.available_addresses[0]) # WORKING
+                pid = "client %d.%d" % (self.c,self.perf)
+                cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
+                message = RequestMessage(pid,cmd)
+                self.send_single_message({"message": message}, self.available_addresses[0]) # WORKING
 
                 # Exit
                 if input == "exit":
@@ -390,6 +398,7 @@ class Env:
             except Exception as e:
                 print e
                 self._graceexit()
+        time.sleep(5)
 
 # Main
 def main():
@@ -418,7 +427,7 @@ def main():
         e.run()
     else:
         while True:
-            time.sleep(20)
+            time.sleep(60)
             print "Sleeping ", self_ip
 
 # Main call
