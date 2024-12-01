@@ -41,13 +41,12 @@ class Process(Thread):
                     #     break
                     try:
                         msg = pickle.loads(data)
-                        print "message received:", msg, self_ip
+                        # print "message received:", msg, type(msg), self_ip, self_node_type
                         if self_node_type == 'ACCEPTOR':
                             this = self.env.config.acceptors[-1]
                             this.handler(msg)
                         if self_node_type == 'LEADER':
                             this = self.env.config.leaders[-1]
-                            print "leader found", this
                         if self_node_type == 'REPLICA':
                             this = self.env.config.replicas[-1]
                             this.handler(msg)
@@ -56,7 +55,7 @@ class Process(Thread):
                         print "Error decoding message"
                 client_socket.close()
             except Exception as e:
-                print "Error accepting connection"
+                print "Error accepting connection", e
 
     def recv_all(self, sock, n):
         data = array.array('b')  # Usando array para bytes

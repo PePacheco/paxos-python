@@ -70,6 +70,7 @@ class Env:
         self.config = Config([], [], [])
         self.c = 0
         self.perf = 0
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def get_network_address(self):
         return self.available_addresses.pop(0) if self.available_addresses else None
@@ -83,6 +84,7 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            print "sending message", message, "to", address_tuple
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
@@ -136,14 +138,14 @@ class Env:
         print "Using default configuration\n\n"
         pid = self_ip
         if self_node_type == "REPLICA":
-            Replica(self, pid, self.config, self_ip, self_port)
-            self.config.replicas.append(pid)
+            r = Replica(self, pid, self.config, self_ip, self_port)
+            self.config.replicas.append(r)
         if self_node_type == "ACCEPTOR":
-            Acceptor(self, pid, self_ip, self_port)
-            self.config.acceptors.append(pid)
+            a = Acceptor(self, pid, self_ip, self_port)
+            self.config.acceptors.append(a)
         if self_node_type == "LEADER":
-            Leader(self, pid, self.config, self_ip, self_port)
-            self.config.leaders.append(pid)
+            l = Leader(self, pid, self.config, self_ip, self_port)
+            self.config.leaders.append(l)
         # for i in range(NREPLICAS):
         #     pid = "replica %d" % i
         #     host, port = self.get_network_address()
@@ -401,7 +403,7 @@ class Env:
             except Exception as e:
                 print e
                 self._graceexit()
-        time.sleep(5)
+        time.sleep(5000)
 
 # Main
 def main():
@@ -430,8 +432,7 @@ def main():
         e.run()
     else:
         while True:
-            time.sleep(60)
-            print "Sleeping ", self_ip
+            continue
 
 # Main call
 if __name__=='__main__':
