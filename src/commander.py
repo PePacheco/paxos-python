@@ -51,18 +51,3 @@ class Commander(Process):
                     self.env.broadcast_message_to_leaders(message)
                     # self.sendMessage(self.leader, PreemptedMessage(self.id, msg.ballot_number))
                     return
-
-    def handler(self, message):
-        if isinstance(message, P2bMessage):
-            if self.ballot_number == message.ballot_number and message.src in self.waitfor:
-                self.waitfor.remove(message.src)
-                if len(self.waitfor) < float(len(self.acceptors))/2:
-                    # for r in self.replicas:
-                    #     self.sendMessage(r, DecisionMessage(self.id, self.slot_number, self.command))
-                    message = DecisionMessage(self.id, self.slot_number, self.command)
-                    self.env.broadcast_message_to_replicas(message)
-                    return
-            else:
-                self.env.broadcast_message_to_leaders(PreemptedMessage(self.id, message.ballot_number))
-                self.sendMessage(self.leader, PreemptedMessage(self.id, message.ballot_number))
-                return
