@@ -23,18 +23,14 @@ class Scout(Process):
         message = P1aMessage((self.host, self.port), self.ballot_number)
         acceptors = self.env.broadcast_message_to_acceptors(message)
         for a in acceptors:
-            waitfor.add(a)
-        print "waitfor", waitfor
+            waitfor.add(a[0])
 
         pvalues = set()
         while True:
             msg = self.getNextMessage()
-            print "getNextMessage", msg
-            print "self.ballot_number", self.ballot_number
             if isinstance(msg, P1bMessage):
                 if self.ballot_number == msg.ballot_number and msg.src in waitfor:
                     pvalues.update(msg.accepted)
-                    print "msg.src", msg
                     waitfor.remove(msg.src)
                     if len(waitfor) < float(len(self.acceptors))/2:
                         message = AdoptedMessage(self.id, self.ballot_number, pvalues)

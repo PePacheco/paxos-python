@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 50
+MAX_RUNS = 6
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1

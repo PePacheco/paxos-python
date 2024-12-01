@@ -41,11 +41,15 @@ class Commander(Process):
                 if self.ballot_number == msg.ballot_number and msg.src in waitfor:
                     waitfor.remove(msg.src)
                     if len(waitfor) < float(len(self.acceptors))/2:
-                        for r in self.replicas:
-                            self.sendMessage(r, DecisionMessage(self.id, self.slot_number, self.command))
+                        message = DecisionMessage(self.id, self.slot_number, self.command)
+                        self.env.broadcast_message_to_leaders(message)
+                        # for r in self.replicas:
+                        #     self.sendMessage(r, DecisionMessage(self.id, self.slot_number, self.command))
                         return
                 else:
-                    self.sendMessage(self.leader, PreemptedMessage(self.id, msg.ballot_number))
+                    message = PreemptedMessage(self.id, msg.ballot_number)
+                    self.env.broadcast_message_to_leaders(message)
+                    # self.sendMessage(self.leader, PreemptedMessage(self.id, msg.ballot_number))
                     return
 
     def handler(self, message):
@@ -59,5 +63,6 @@ class Commander(Process):
                     self.env.broadcast_message_to_replicas(message)
                     return
             else:
+                self.env.broadcast_message_to_leaders(PreemptedMessage(self.id, message.ballot_number))
                 self.sendMessage(self.leader, PreemptedMessage(self.id, message.ballot_number))
                 return
