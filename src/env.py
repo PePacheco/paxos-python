@@ -405,7 +405,7 @@ class Env:
             except Exception as e:
                 print e
                 self._graceexit()
-        # time.sleep(50)
+        time.sleep(500)
 
 # Main
 def main():
@@ -433,7 +433,7 @@ def main():
     if self_node_type == "LEADER":
         e.run()
     while True:
-        time.sleep(1000)
+        time.sleep(2000)
         print "sleeping"
 
 # Main call

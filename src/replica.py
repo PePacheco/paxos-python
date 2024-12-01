@@ -97,6 +97,7 @@ class Replica(Process):
         #         self.propose()
 
     def handler(self, message):
+        print "REPLICA RECEIVED MESSAGE", message.__class__
         if isinstance(message, RequestMessage):
             self.requests.append(message.command)
         elif isinstance(message, DecisionMessage):
