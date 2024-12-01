@@ -1,4 +1,5 @@
 import sys
+import os
 sys.dont_write_bytecode = True
 from process import Process
 from message import P1aMessage,P1bMessage,PreemptedMessage,AdoptedMessage
@@ -10,6 +11,11 @@ hosts_and_ports_map = {
     "replica": [("replica0", 5200), ("replica1", 5201)],
 }
 
+self_port = int(os.environ.get("PORT"))
+self_ip = os.environ.get("HOST_IP")
+self_node_type = os.environ.get("NODE_TYPE")
+self_node_id = os.environ.get("NODE_ID")
+
 class Scout(Process):
     def __init__(self, env, id, leader, acceptors, ballot_number, host, port):
         Process.__init__(self, env, id, host, port)
@@ -20,13 +26,15 @@ class Scout(Process):
 
     def body(self):
         waitfor = set()
-        message = P1aMessage(self.id, self.ballot_number)
+        message = P1aMessage((self_ip, self_port), self.ballot_number)
         acceptors = self.env.broadcast_message_to_acceptors(message)
         for a in acceptors:
             waitfor.add(a)
 
         pvalues = set()
+        print "AAAAA"
         while True:
+            print "BBBBB"
             msg = self.getNextMessage()
             print "getNextMessage", msg
             if isinstance(msg, P1bMessage):

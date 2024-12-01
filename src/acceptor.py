@@ -36,11 +36,13 @@ class Acceptor(Process):
             if isinstance(message, P1aMessage):
                 if message.ballot_number > self.ballot_number:
                     self.ballot_number = message.ballot_number
-                self.sendMessage(message.src,P1bMessage(self.id,self.ballot_number,self.accepted))
+                self.env.send_single_message(P1bMessage(self.id,self.ballot_number,self.accepted), message.src)
+                # self.sendMessage(message.src,P1bMessage(self.id,self.ballot_number,self.accepted))
             elif isinstance(message, P2aMessage):
                 if message.ballot_number == self.ballot_number:
                     self.accepted.add(PValue(message.ballot_number, message.slot_number, message.command))
-                self.sendMessage(message.src, P2bMessage(self.id, self.ballot_number, message.slot_number))
+                # self.sendMessage(message.src, P2bMessage(self.id, self.ballot_number, message.slot_number))
+                self.env.send_single_message(P2bMessage(self.id, self.ballot_number, message.slot_number), message.src)
             elif isinstance(message, RequestMessage):
                 if message.command[2].split(" ")[2].split("#")[0] == self.id.split(".")[1]:
                     print "Acceptor", self.id, "fails"
