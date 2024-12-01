@@ -26,26 +26,17 @@ hosts_and_ports_array = [
     ("acceptor1", 5001),  # 172.16.238.11
     ("acceptor2", 5002),  # 172.16.238.12
     ("leader0", 5100),  # 172.16.238.13
-    ("leader1", 5101),  # 172.16.238.14
+    # ("leader1", 5101),  # 172.16.238.14
     ("replica0", 5200),  # 172.16.238.15
     ("replica1", 5201),  # 172.16.238.16
 ]
 
 hosts_and_ports_map = {
     "acceptor": [("acceptor0", 5000), ("acceptor1", 5001), ("acceptor2", 5002)],
-    "leader": [("leader0", 5100), ("leader1", 5101)],
+    # "leader": [("leader0", 5100), ("leader1", 5101)],
+    "leader": [("leader0", 5100)],
     "replica": [("replica0", 5200), ("replica1", 5201)],
 }
-
-# hosts_and_ports = [
-#     ("172.16.238.10", 5000),  # acceptor0
-#     ("172.16.238.11", 5001),  # acceptor1
-#     ("172.16.238.12", 5002),  # acceptor2
-#     ("172.16.238.13", 5100),  # leader0
-#     ("172.16.238.14", 5101),  # leader1
-#     ("172.16.238.15", 5200),  # replica0
-#     ("172.16.238.16", 5201),  # replica1
-# ]
 
 self_port = int(os.environ.get("PORT"))
 self_ip = os.environ.get("HOST_IP")
@@ -103,6 +94,14 @@ class Env:
     def broadcast_message_to_acceptors(self, message):
         for acceptor in hosts_and_ports_map['acceptor']:
             self.send_single_message(message, acceptor)
+
+    def broadcast_message_to_replicas(self, message):
+        for replicas in hosts_and_ports_map['replica']:
+            self.send_single_message(message, replicas)
+
+    def broadcast_message_to_leaders(self, message):
+        for leaders in hosts_and_ports_map['leader']:
+            self.send_single_message(message, leaders)
 
     def sendMessage(self, dst, msg):
         if dst in self.proc_addresses:
@@ -217,7 +216,7 @@ class Env:
                 pid = "client %d.%d" % (self.c,self.perf)
                 cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
                 message = RequestMessage(pid,cmd)
-                self.broadcast_message_to_acceptors(message) # WORKING
+                self.broadcast_message_to_replicas(message) # WORKING
 
                 # Exit
                 if input == "exit":

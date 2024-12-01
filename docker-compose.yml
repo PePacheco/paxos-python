@@ -44,16 +44,16 @@ services:
       paxos_net:
         ipv4_address: 172.16.238.13
 
-  leader1:
-    build: .
-    environment:
-      - NODE_TYPE=LEADER
-      - NODE_ID=4
-      - HOST_IP=leader1
-      - PORT=5101
-    networks:
-      paxos_net:
-        ipv4_address: 172.16.238.14
+  # leader1:
+  #   build: .
+  #   environment:
+  #     - NODE_TYPE=LEADER
+  #     - NODE_ID=4
+  #     - HOST_IP=leader1
+  #     - PORT=5101
+  #   networks:
+  #     paxos_net:
+  #       ipv4_address: 172.16.238.14
 
   replica0:
     build: .

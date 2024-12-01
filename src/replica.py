@@ -1,9 +1,15 @@
 import sys
+import os
 sys.dont_write_bytecode = True
 from process import Process
 from bank import bank
 from message import ProposeMessage,DecisionMessage,RequestMessage
 from utils import *
+
+self_port = int(os.environ.get("PORT"))
+self_ip = os.environ.get("HOST_IP")
+self_node_type = os.environ.get("NODE_TYPE")
+self_node_id = os.environ.get("NODE_ID")
 
 class Replica(Process):
     def __init__(self, env, id, config, host, port):
@@ -26,8 +32,11 @@ class Replica(Process):
             if self.slot_in not in self.decisions:
                 cmd = self.requests.pop(0)
                 self.proposals[self.slot_in] = cmd
-                for ldr in self.config.leaders:
-                    self.sendMessage(ldr, ProposeMessage(self.id,self.slot_in,cmd))
+                print "sending message from", self_ip
+
+                self.env.se
+                # for ldr in self.config.leaders:
+                #     self.sendMessage(ldr, ProposeMessage(self.id,self.slot_in,cmd))
             self.slot_in +=1
 
     def perform(self, cmd):
@@ -55,7 +64,7 @@ class Replica(Process):
                 self.BankStatus.balance_2(parts[1], parts[2])
             else:
                 self.BankStatus.balance(parts[1])
-        elif parts[0] == "deposit": 
+        elif parts[0] == "deposit":
             self.BankStatus.deposit(parts[1], parts[2])
         elif parts[0] == "withdraw":
             self.BankStatus.withdraw(parts[1], parts[2], parts[3])
@@ -86,3 +95,18 @@ class Replica(Process):
                 else:
                     print "Replica: unknown msg type"
                 self.propose()
+
+    def handler(self, message):
+        if isinstance(message, RequestMessage):
+            self.requests.append(message.command)
+        elif isinstance(message, DecisionMessage):
+            self.decisions[message.slot_number] = message.command
+            while self.slot_out in self.decisions:
+                if self.slot_out in self.proposals:
+                    if self.proposals[self.slot_out]!=self.decisions[self.slot_out]:
+                        self.requests.append(self.proposals[self.slot_out])
+                    del self.proposals[self.slot_out]
+                self.perform(self.decisions[self.slot_out])
+        else:
+            print "Replica: unknown msg type"
+        self.propose()
