@@ -44,7 +44,7 @@ self_node_type = os.environ.get("NODE_TYPE")
 self_node_id = os.environ.get("NODE_ID")
 
 # Constants
-MAX_RUNS = 12
+MAX_RUNS = 50
 NACCEPTORS = 2
 NREPLICAS = 2
 NLEADERS = 1
@@ -206,10 +206,8 @@ class Env:
     def run(self):
         count = 0
         count_global = 0
-        while True:
+        while count_global < MAX_RUNS:
             count_global += 1
-            if count_global > MAX_RUNS:
-                continue
             try:
                 # input = raw_input("\nInput: ")
                 input = inputs[count]
@@ -437,7 +435,7 @@ def main():
         e.run()
     else:
         while True:
-            continue
+            pass
 
 # Main call
 if __name__=='__main__':
