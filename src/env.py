@@ -125,6 +125,10 @@ class Env:
         finally:
             s.close()
 
+    def release_leader_mutex(self):
+        leader = self.config.leaders[-1]
+        leader.semaphore.release()
+
     def addProc(self, proc):
         self.procs[proc.id] = proc
         self.proc_addresses[proc.id] = (proc.host, proc.port)
@@ -151,7 +155,7 @@ class Env:
             a = Acceptor(self, pid, self_ip, self_port)
             self.config.acceptors.append(a)
         if self_node_type == "LEADER":
-            l = Leader(self, pid, self.config, self_ip, self_port)
+            l = Leader(self, pid, self.config, self_ip, self_port, self.release_leader_mutex)
             self.config.leaders.append(l)
 
     # Run environment
@@ -170,10 +174,9 @@ class Env:
                     count += 1
                 else:
                     count = 0
-
-                # address = self.available_addresses[0]
                 leader = self.config.leaders[-1]
-                leader.mutex.acquire(1)
+                leader.semaphore.acquire()
+                # address = self.available_addresses[0]
                 print "Running input", input, self_ip
                 pid = "client %d.%d" % (self.c,self.perf)
                 t1 = datetime.now()

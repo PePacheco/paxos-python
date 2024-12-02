@@ -5,18 +5,18 @@ from process import Process
 from commander import Commander
 from scout import Scout
 from message import ProposeMessage,AdoptedMessage,PreemptedMessage
-from threading import Lock
+from threading import Semaphore
 
 class Leader(Process):
-    def __init__(self, env, id, config, host, port):
+    def __init__(self, env, id, config, host, port, callback):
         Process.__init__(self, env, id, host, port)
         self.ballot_number = BallotNumber(0, self.id)
         self.active = False
         self.proposals = {}
         self.config = config
         self.env.addProc(self)
-        self.mutex = Lock()
-
+        self.semaphore = Semaphore()
+        self.callback = callback
         self.scout_number=1
         self.commander_number=1
         self.create_scout()
@@ -73,10 +73,7 @@ class Leader(Process):
 
     def handler(self, message):
         if isinstance(message, ProposeMessage):
-            try:
-                self.mutex.release()
-            except:
-                print ""
+            self.callback()
             if message.slot_number not in self.proposals:
                 self.proposals[message.slot_number] = message.command
                 if self.active:
