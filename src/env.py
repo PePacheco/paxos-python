@@ -12,6 +12,8 @@ from replica import Replica
 from utils import *
 from datetime import datetime
 from timestampManager import TimestampManager
+from client import Client
+import threading
 
 timestampManager = TimestampManager.get_instance()
 
@@ -25,6 +27,8 @@ inputs = [
     "deposit 1 100",
     "balance 2 1",
 ]
+
+inputComands = inputs 
 
 hosts_and_ports_array = [
     ("acceptor0", 5000),  # 172.16.238.10
@@ -90,12 +94,12 @@ class Env:
     def send_single_message(self, message, address_tuple):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            print "<- Message sent", message.__class__, "to", address_tuple, "\n"
+            #print "<- Message sent", message.__class__, "to", address_tuple, "\n"
             s.connect(address_tuple)
             data = pickle.dumps(message, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
         except Exception as e:
-            print("Failed to send message:", e)
+            print ""
         finally:
             s.close()
 
@@ -121,7 +125,7 @@ class Env:
             data = pickle.dumps(msg, protocol=pickle.HIGHEST_PROTOCOL)
             s.sendall(struct.pack('!I', len(data)) + data)
         except Exception as e:
-            print("Failed to send message:", e)
+            print ""
         finally:
             s.close()
 
@@ -146,7 +150,7 @@ class Env:
 
     # Create default configuration
     def create_default(self):
-        print "Using default configuration\n\n"
+        #print "Using default configuration\n\n"
         pid = self_ip
         if self_node_type == "REPLICA":
             r = Replica(self, pid, self.config, self_ip, self_port)
@@ -159,54 +163,81 @@ class Env:
             self.config.leaders.append(l)
 
     # Run environment
-    def run(self):
-        count = 0
-        count_global = 0
+    # def run(self):
+    #     count = 0
+    #     count_global = 0
+    #     t0 = datetime.now()
+    #     timestampManager.set_timestamp('t0', t0)
+    #     while count_global < MAX_RUNS:
+    #         count_global += 1
+    #         #print "input number ", count_global
+    #         try:
+    #             # input = raw_input("\nInput: ")
+    #             input = inputs[count]
+    #             if count < 6:
+    #                 count += 1
+    #             else:
+    #                 count = 0
+    #             leader = self.config.leaders[-1]
+    #             leader.semaphore.acquire(1)
+    #             # address = self.available_addresses[0]
+    #             #print "Running input", input, self_ip
+    #             pid = "client %d.%d" % (self.c,self.perf)
+    #             t1 = datetime.now()
+    #             timestampManager.set_timestamp('t1', t1)
+    #             cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
+    #             message = RequestMessage(pid,cmd)
+    #             self.broadcast_message_to_replicas(message) # WORKING
+    #             t2 = datetime.now()
+    #             timestampManager.set_timestamp('t2', t2)
+    #             # Exit
+    #             if input == "exit":
+    #                 self._graceexit()
+    #                 self.perf=-1
+    #             self.perf+=1
+    #         except Exception as e:
+    #             #print e
+    #             self._graceexit()
+
+    #     t4 = datetime.now()
+    #     timestampManager.set_timestamp('t4', t4)
+    #     timedDifference = timestampManager.get_time_difference( "t4", "t0" )
+    #     #print t4 - t0
+    #     vazao = len(input) / (t4 - t0).total_seconds()
+    #     #print "vazao(requests/seconds): ", vazao
+    #     time.sleep(1000)
+
+    def process_command(self, client_id, command):
+        print("process command called")
         t0 = datetime.now()
         timestampManager.set_timestamp('t0', t0)
-        while count_global < MAX_RUNS:
-            count_global += 1
-            print "input number ", count_global
-            try:
-                # input = raw_input("\nInput: ")
-                input = inputs[count]
-                if count < 6:
-                    count += 1
-                else:
-                    count = 0
-                leader = self.config.leaders[-1]
-                leader.semaphore.acquire(1)
-                # address = self.available_addresses[0]
-                print "Running input", input, self_ip
-                pid = "client %d.%d" % (self.c,self.perf)
-                t1 = datetime.now()
-                timestampManager.set_timestamp('t1', t1)
-                cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                message = RequestMessage(pid,cmd)
-                self.broadcast_message_to_replicas(message) # WORKING
-                t2 = datetime.now()
-                timestampManager.set_timestamp('t2', t2)
-                # Exit
-                if input == "exit":
-                    self._graceexit()
-                    self.perf=-1
-                self.perf+=1
-            except Exception as e:
-                print e
+        try:
+            input = command
+            leader = self.config.leaders[-1]
+            leader.semaphore.acquire(1)
+            # #print "Running input", input, self_ip
+            pid = "client %d.%d" % (self.c,self.perf)
+            t1 = datetime.now()
+            timestampManager.set_timestamp('t1', t1)
+            cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
+            message = RequestMessage(pid,cmd)
+            self.broadcast_message_to_replicas(message) # WORKING
+            t2 = datetime.now()
+            timestampManager.set_timestamp('t2', t2)
+            if input == "exit":
                 self._graceexit()
+                self.perf=-1
+            self.perf+=1
+        except Exception as e:
+            #print e
+            return False
 
-        t4 = datetime.now()
-        timestampManager.set_timestamp('t4', t4)
-        timedDifference = timestampManager.get_time_difference( "t4", "t0" )
-        print t4 - t0
-        vazao = len(input) / (t4 - t0).total_seconds()
-        print "vazao(requests/seconds): ", vazao
-        time.sleep(1000)
+        return True
 
 # Main
 def main():
   # Create environment and check arguments
-    print "Ran for", self_node_type
+    #print "Ran for", self_node_type
     e = Env(len(os.sys.argv))
     if len(os.sys.argv) == 1:
         e.create_default()
@@ -215,8 +246,8 @@ def main():
         e.create_custom()
         time.sleep(5)
     else:
-        print "Usage: env.py"
-        print "Usage: env.py <config_file> <id> <function>"
+        #print "Usage: env.py"
+        #print "Usage: env.py <config_file> <id> <function>"
         os._exit(1)
 
     # Reset log files
@@ -226,11 +257,46 @@ def main():
             os.remove(path)
 
     # Run environment
+
     if self_node_type == "LEADER":
-        e.run()
+
+        # e.run()
+
+        N = 1
+
+
+        clients = {}
+        t0 = datetime.now()
+        timestampManager.set_timestamp('t0', t0)
+        for i in range(1, N + 1):
+            client_id = "Cliente-{}".format(i)
+            client = Client(client_id, e)
+            client.set_command_queue(inputComands)
+            clients[client_id] = client
+
+        
+        threads = []
+        for client in clients.values():
+            thread = threading.Thread(target=client.process_commands)
+            threads.append(thread)
+            thread.start()
+
+        # Esperando que todas as threads terminem
+        for thread in threads:
+            thread.join()
+            t4 = datetime.now()
+            timestampManager.set_timestamp('t4', t4)
+            timedDifference = timestampManager.get_time_difference( "t4", "t0" )
+
+        #print t4 - t0
+        vazao = len(inputComands*N) / (t4 - t0).total_seconds()
+        print "vazao(requests/seconds): ", vazao
+        time.sleep(1000)
+
+
     while True:
         time.sleep(2000)
-        print "sleeping"
+        #print "sleeping"
 
 # Main call
 if __name__=='__main__':
