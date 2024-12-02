@@ -262,7 +262,7 @@ def main():
 
         # e.run()
 
-        N = 1
+        N = 100
 
 
         clients = {}
@@ -290,7 +290,7 @@ def main():
 
         #print t4 - t0
         vazao = len(inputComands*N) / (t4 - t0).total_seconds()
-        print "vazao(requests/seconds): ", vazao
+        print "vazao(requests/seconds) para {} clientes: ".format(N), vazao
         time.sleep(1000)
 
 
