@@ -5,7 +5,7 @@ from process import Process
 from commander import Commander
 from scout import Scout
 from message import ProposeMessage,AdoptedMessage,PreemptedMessage
-from threading import Semaphore
+from timeout_semaphore import TimeoutSemaphore
 
 class Leader(Process):
     def __init__(self, env, id, config, host, port, callback):
@@ -15,7 +15,7 @@ class Leader(Process):
         self.proposals = {}
         self.config = config
         self.env.addProc(self)
-        self.semaphore = Semaphore()
+        self.semaphore = TimeoutSemaphore()
         self.callback = callback
         self.scout_number=1
         self.commander_number=1

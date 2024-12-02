@@ -175,7 +175,7 @@ class Env:
                 else:
                     count = 0
                 leader = self.config.leaders[-1]
-                leader.semaphore.acquire()
+                leader.semaphore.acquire(1)
                 # address = self.available_addresses[0]
                 print "Running input", input, self_ip
                 pid = "client %d.%d" % (self.c,self.perf)
