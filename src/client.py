@@ -5,7 +5,7 @@ from Queue import Queue
 
 class Client:
     def __init__(self, client_id, env):
- 
+
         self.client_id = client_id
         self.env = env
         self.command_queue = Queue()
@@ -14,7 +14,7 @@ class Client:
     def add_command(self, command):
         self.command_queue.put(command)
         # #print "Cliente {}: Comando '{}' adicionado a fila.".format(self.client_id, command)
-    
+
     def set_command_queue(self, command_list):
 
         for command in command_list:
@@ -29,14 +29,14 @@ class Client:
             self.send_command(command)
 
     def send_command(self, command):
-        with self.lock: 
+        with self.lock:
             # #print "Cliente {}: Enviando comando '{}' para o lider.".format(self.client_id, command)
-            
+
             success = self.env.process_command(self.client_id, command)
 
             if success:
-                print "Cliente {}: Comando '{}' foi ACEITO pelo lider.".format(self.client_id, command)
-                self.command_queue.get()  
+                print "Command '{}' accepted by leader {}.".format(command, self.client_id)
+                self.command_queue.get()
             else:
                 #print "Cliente {}: Comando '{}' foi REJEITADO. Tentando novamente...".format(self.client_id, command)
-                time.sleep(random.uniform(0.5, 2)) 
+                time.sleep(random.uniform(0.5, 2))
