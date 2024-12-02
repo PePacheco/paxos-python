@@ -10,6 +10,7 @@ from leader import Leader
 from message import RequestMessage
 from replica import Replica
 from utils import *
+from datetime import datetime
 
 inputs = [
     "newclient A 1",
@@ -206,6 +207,7 @@ class Env:
     def run(self):
         count = 0
         count_global = 0
+        t0 = datetime.now()
         while count_global < MAX_RUNS:
             count_global += 1
             try:
@@ -219,193 +221,24 @@ class Env:
                 # address = self.available_addresses[0]
                 print "Running input", input, self_ip
                 pid = "client %d.%d" % (self.c,self.perf)
+                t1 = datetime.now()
                 cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
                 message = RequestMessage(pid,cmd)
                 self.broadcast_message_to_replicas(message) # WORKING
-
+                t2 = datetime.now()
                 # Exit
                 if input == "exit":
                     self._graceexit()
-
-                # # New client
-                # elif input.startswith("newclient"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 3:
-                #         print "Usage: newclient <client_name> <client_id>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # New account
-                # elif input.startswith("newaccount"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 3 and len(parts) != 2:
-                #         print "Usage: newaccount <client_id> <account_id>"
-                #         print "Usage: newaccount <account_id>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Add account
-                # elif input.startswith("addaccount"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 3:
-                #         print "Usage: addaccount <client_id> <account_id>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Balance
-                # elif input.startswith("balance"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 2 and len(parts) != 3:
-                #         print "Usage: balance <client_id> <account_id>"
-                #         print "Usage: balance <client_id>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Deposit
-                # elif input.startswith("deposit"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 3:
-                #         print "Usage: deposit <account_id> <amount>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Withdraw
-                # elif input.startswith("withdraw"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 4:
-                #         print "Usage: withdraw <client_id> <account_id> <amount>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Transfer
-                # elif input.startswith("transfer"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 5:
-                #         print "Usage: transfer <client_id> <from_account_id> <to_account_id> <amount>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             for key, val in self.proc_addresses:
-                #                 if key.startswith("replica"):
-                #                     self.sendMessage(val,RequestMessage(pid,cmd))
-                #         else:
-                #             for r in self.config.replicas:
-                #                 self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Fail
-                # elif input.startswith("fail"):
-                #     parts = input.split(" ")
-                #     if len(parts) != 3:
-                #         print "Usage: fail <func> <id>"
-                #     else:
-                #         pid = "client %d.%d" % (self.c,self.perf)
-                #         cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
-                #         if self.dist:
-                #             #for key, val in self.proc_addresses:
-                #                 #if key.startswith("replica"):
-                #                     #self.sendMessage(val,RequestMessage(pid,cmd))
-                #                     pass
-                #         else:
-                #             if parts[1] == "replica":
-                #                 for r in self.config.replicas:
-                #                     self.sendMessage(r,RequestMessage(pid,cmd))
-                #             if parts[1] == "acceptor":
-                #                 for r in self.config.acceptors:
-                #                     self.sendMessage(r,RequestMessage(pid,cmd))
-                #         time.sleep(1)
-
-                # # Create new configuration
-                # elif input == "reconfig":
-                #     self.c+=1
-                #     self.config = Config(self.config.replicas, [], [])
-                #     for i in range(NACCEPTORS):
-                #         pid = "acceptor %d.%d" % (self.c,i)
-                #         host, port = self.get_network_address()
-                #         Acceptor(self, pid, host, port)
-                #         self.config.acceptors.append(pid)
-                #     for i in range(NLEADERS):
-                #         pid = "leader %d.%d" % (self.c,i)
-                #         host, port = self.get_network_address()
-                #         Leader(self, pid, self.config, host, port)
-                #         self.config.leaders.append(pid)
-                #     for r in self.config.replicas:
-                #         pid = "master %d.%d" % (self.c,i)
-                #         cmd = ReconfigCommand(pid,0,str(self.config))
-                #         self.sendMessage(r, RequestMessage(pid, cmd))
-                #         time.sleep(1)
-                #     for i in range(WINDOW-1):
-                #         pid = "master %d.%d" % (self.c,i)
-                #     for r in self.config.replicas:
-                #         cmd = Command(pid,0,"operation noop")
-                #         self.sendMessage(r, RequestMessage(pid, cmd))
-                #         time.sleep(1)
-                #     self.perf=-1
-
-                # # Default
-                # else:
-                #     print "Unknown command"
                     self.perf=-1
                 self.perf+=1
 
             except Exception as e:
                 print e
                 self._graceexit()
+        t4 = datetime.now()
+        print t4 - t0
+        vazao = len(input) / (t4 - t0).total_seconds()
+        print "vazao(requests/seconds): ", vazao
         time.sleep(500)
 
 # Main
