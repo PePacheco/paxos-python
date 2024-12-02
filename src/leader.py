@@ -5,6 +5,7 @@ from process import Process
 from commander import Commander
 from scout import Scout
 from message import ProposeMessage,AdoptedMessage,PreemptedMessage
+from threading import Lock
 
 class Leader(Process):
     def __init__(self, env, id, config, host, port):
@@ -14,6 +15,7 @@ class Leader(Process):
         self.proposals = {}
         self.config = config
         self.env.addProc(self)
+        self.mutex = Lock()
 
         self.scout_number=1
         self.commander_number=1
@@ -71,10 +73,14 @@ class Leader(Process):
 
     def handler(self, message):
         if isinstance(message, ProposeMessage):
-                if message.slot_number not in self.proposals:
-                    self.proposals[message.slot_number] = message.command
-                    if self.active:
-                        self.create_commander(message.slot_number, message.command)
+            try:
+                self.mutex.release()
+            except:
+                print ""
+            if message.slot_number not in self.proposals:
+                self.proposals[message.slot_number] = message.command
+                if self.active:
+                    self.create_commander(message.slot_number, message.command)
         elif isinstance(message, AdoptedMessage):
             if self.ballot_number == message.ballot_number:
                 pmax = {}

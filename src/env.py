@@ -219,6 +219,8 @@ class Env:
                     count = 0
 
                 # address = self.available_addresses[0]
+                leader = self.config.leaders[-1]
+                leader.mutex.acquire(1)
                 print "Running input", input, self_ip
                 pid = "client %d.%d" % (self.c,self.perf)
                 t1 = datetime.now()
@@ -239,7 +241,7 @@ class Env:
         print t4 - t0
         vazao = len(input) / (t4 - t0).total_seconds()
         print "vazao(requests/seconds): ", vazao
-        time.sleep(500)
+        time.sleep(1000)
 
 # Main
 def main():
