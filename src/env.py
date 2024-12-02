@@ -11,6 +11,9 @@ from message import RequestMessage
 from replica import Replica
 from utils import *
 from datetime import datetime
+from timestampManager import TimestampManager
+
+timestampManager = TimestampManager.get_instance()
 
 inputs = [
     "newclient A 1",
@@ -150,66 +153,16 @@ class Env:
         if self_node_type == "LEADER":
             l = Leader(self, pid, self.config, self_ip, self_port)
             self.config.leaders.append(l)
-        # for i in range(NREPLICAS):
-        #     pid = "replica %d" % i
-        #     host, port = self.get_network_address()
-        #     Replica(self, pid, self.config, host, port)
-        #     self.config.replicas.append(pid)
-        # for i in range(NACCEPTORS):
-        #     pid = "acceptor %d.%d" % (self.c,i)
-        #     host, port = self.get_network_address()
-        #     Acceptor(self, pid, host, port)
-        #     self.config.acceptors.append(pid)
-        # for i in range(NLEADERS):
-        #     pid = "leader %d.%d" % (self.c,i)
-        #     host, port = self.get_network_address()
-        #     Leader(self, pid, self.config, host, port)
-        #     self.config.leaders.append(pid)
-
-    # Create custom configuration
-    # def create_custom(self):
-    #     print "Using custom configuration\n\n"
-    #     try:
-    #         file = open("..\config\\"+sys.argv[1], 'r')
-    #         for line in file:
-    #             parts = line.split(" ")
-    #             if line.startswith("REPLICA"):
-    #                 pid = "replica %d" % int(os.sys.argv[2])
-    #                 self.config.replicas.append(pid)
-    #                 host, port = parts[2].split(":")
-    #                 self.proc_addresses[pid] = (host, int(port))
-    #                 if os.sys.argv[3] == "REPLICA" and parts[1] == os.sys.argv[2]:
-    #                     self.proc_addresses.pop(pid)
-    #                     Replica(self, pid, self.config, host, int(port))
-    #             elif line.startswith("ACCEPTOR"):
-    #                 pid = "acceptor %d.%d" % (self.c,int(os.sys.argv[2]))
-    #                 self.config.acceptors.append(pid)
-    #                 host, port = parts[2].split(":")
-    #                 self.proc_addresses[pid] = (host, int(port))
-    #                 if os.sys.argv[3] == "ACCEPTOR" and parts[1] == os.sys.argv[2]:
-    #                     self.proc_addresses.pop(pid)
-    #                     Acceptor(self, pid, host, int(port))
-    #             elif line.startswith("LEADER"):
-    #                 pid = "leader %d.%d" % (self.c,int(os.sys.argv[2]))
-    #                 self.config.leaders.append(pid)
-    #                 host, port = parts[2].split(":")
-    #                 self.proc_addresses[pid] = (host, int(port))
-    #                 if os.sys.argv[3] == "LEADER" and parts[1] == os.sys.argv[2]:
-    #                     self.proc_addresses.pop(pid)
-    #                     Leader(self, pid, self.config, host, int(port))
-    #     except Exception as e:
-    #         print e
-    #         self._graceexit()
-    #     finally:
-    #         file.close()
 
     # Run environment
     def run(self):
         count = 0
         count_global = 0
         t0 = datetime.now()
+        timestampManager.set_timestamp('t0', t0)
         while count_global < MAX_RUNS:
             count_global += 1
+            print "input number ", count_global
             try:
                 # input = raw_input("\nInput: ")
                 input = inputs[count]
@@ -224,20 +177,24 @@ class Env:
                 print "Running input", input, self_ip
                 pid = "client %d.%d" % (self.c,self.perf)
                 t1 = datetime.now()
+                timestampManager.set_timestamp('t1', t1)
                 cmd = Command(pid,0,input+"#%d.%d" % (self.c,self.perf))
                 message = RequestMessage(pid,cmd)
                 self.broadcast_message_to_replicas(message) # WORKING
                 t2 = datetime.now()
+                timestampManager.set_timestamp('t2', t2)
                 # Exit
                 if input == "exit":
                     self._graceexit()
                     self.perf=-1
                 self.perf+=1
-
             except Exception as e:
                 print e
                 self._graceexit()
+
         t4 = datetime.now()
+        timestampManager.set_timestamp('t4', t4)
+        timedDifference = timestampManager.get_time_difference( "t4", "t0" )
         print t4 - t0
         vazao = len(input) / (t4 - t0).total_seconds()
         print "vazao(requests/seconds): ", vazao

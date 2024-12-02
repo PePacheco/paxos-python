@@ -3,6 +3,8 @@ import os
 sys.dont_write_bytecode = True
 from message import P2aMessage,P2bMessage,PreemptedMessage,DecisionMessage
 from process import Process
+from datetime import datetime
+from timestampManager import TimestampManager
 
 self_port = int(os.environ.get("PORT"))
 self_ip = os.environ.get("HOST_IP")
@@ -50,6 +52,8 @@ class Commander(Process):
                     if len(waitfor) < float(len(self.acceptors))/2:
                         message = DecisionMessage(self.id, self.slot_number, self.command)
                         self.env.broadcast_message_to_replicas(message)
+                        t4 = datetime.now()
+                        TimestampManager.get_instance().set_timestamp('t4', t4)
                         # for r in self.replicas:
                         #     self.sendMessage(r, DecisionMessage(self.id, self.slot_number, self.command))
                         return
